@@ -32,9 +32,9 @@ class DashboardWidget():
 
 class HelloWorldWidget(DashboardWidget):
     def render(self):
-        return '<p>Hello world!</p>'
+        return '<p>Welcome to Level2Designs Contacts</p>'
 
 
 class DefaultDashboard(Dashboard):
     """Default dashboard."""
-    widgets = [HelloWorldWidget('my first dashboard widget')]
+    widgets = [HelloWorldWidget('Contacts Dashboard')]

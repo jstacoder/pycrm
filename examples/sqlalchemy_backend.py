@@ -7,7 +7,7 @@ from flask import Flask, redirect
 from flask_dashed.admin import Admin
 from flask_dashed.ext.sqlalchemy import ModelAdminModule, model_form
 
-from flaskext.sqlalchemy import SQLAlchemy
+from flask.ext.sqlalchemy import SQLAlchemy
 
 from sqlalchemy.orm import aliased, contains_eager
 
@@ -24,23 +24,38 @@ db = SQLAlchemy(app)
 db_session = db.session
 
 
+# define model classes for Modules
 class Company(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), unique=True, nullable=False)
+    zone = db.Column(db.Integer,nullable=False)
+    account_num = db.Column(db.String(15),nullable=False)
+    #main_contact = db.Column(
+    #contacts_group = db.Column
+    main_phone = db.Column(db.String(15))
+    alt_phone = db.Column(db.String(15))
+    #email = db.Column
+    date_created = db.Column(db.String(10))
+    date_modified = db.Column(db.String(10))
+    contract_start = db.Column(db.String(10))
+    contract_end = db.Column(db.String(10))
+
 
     def __unicode__(self):
         return unicode(self.name)
 
     def __repr__(self):
-        return '<Company %r>' % self.name
+        return '<Agency %r>' % self.name
 
 
 class Warehouse(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     company_id = db.Column(db.Integer, db.ForeignKey(Company.id))
-
     company = db.relationship(Company, backref=db.backref("warehouses"))
+
+    def __unicode__(self):
+        return self.name   
 
     def __repr__(self):
         return '<Warehouse %r>' % self.name
@@ -49,6 +64,9 @@ class Warehouse(db.Model):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(255), unique=True, nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    zone = db.Column(db.Integer,nullable=False)
+    account_num = db.Column(db.String(20),nullable=False)
     password = db.Column(db.String(255))
     is_active = db.Column(db.Boolean())
 
@@ -65,6 +83,10 @@ class Profile(db.Model):
 
     company = db.relationship(Company, backref=db.backref("staff"))
 
+    def __unicode__(self):
+        return self.user.username
+
+    
 
 user_group = db.Table(
     'user_group', db.Model.metadata,
@@ -90,14 +112,16 @@ class Group(db.Model):
 db.drop_all()
 db.create_all()
 
-group = Group(name="admin")
+group = Group(name="admins")
 db_session.add(group)
-company = Company(name="My company")
+company = Company(name="Level 2 Designs",zone=1,main_phone='714-783-6369',account_num="4565")
+user = User(username="kyle",zone=1,account_num="222",email="kyle@level2designs.com",password="14wp88",is_active=True)
+db_session.add(user)
 db_session.add(company)
 db_session.commit()
 
 
-UserForm = model_form(User, db_session, exclude=['password'])
+UserForm = model_form(User, db_session)#,exclude=['password'])
 
 
 class UserForm(UserForm):
@@ -115,6 +139,9 @@ class UserModule(ModelAdminModule):
     list_fields = OrderedMultiDict((
         ('id', {'label': 'id', 'column': User.id}),
         ('username', {'label': 'username', 'column': User.username}),
+        ('email', {'label': 'email address', 'column': User.email}),
+        ('zone', {'label':'Zone', 'column': User.zone}),
+        ('account_num',{'label' : 'Account Number','column': User.account_num}),
         ('profile.name', {'label': 'name', 'column': profile_alias.name}),
         ('profile.location', {'label': 'location',
             'column': profile_alias.location}),
@@ -152,10 +179,10 @@ class WarehouseModule(ModelAdminModule):
 class CompanyModule(ModelAdminModule):
     model = Company
     db_session = db_session
-    form_class = model_form(Company, db_session, only=['name'])
+    form_class = model_form(Company, db_session)
 
 
-admin = Admin(app, title="my business administration")
+admin = Admin(app, title="Level2Designs Contact Admin")
 
 security = admin.register_node('/security', 'security', 'security management')
 
@@ -177,4 +204,4 @@ def redirect_to_admin():
     return redirect('/admin')
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0',port=5000)
