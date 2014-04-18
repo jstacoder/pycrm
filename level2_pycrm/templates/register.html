@@ -1,0 +1,19 @@
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-block alert-error fade in">
+                <a class="close" data-dismiss="alert">&times;</a>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+<form method="post" action="">
+    <div>
+        <p>Username:</p> <input type="text" name="username" /><br />
+        <p>Email:</p> <input type="text" name="email" /><br />
+        <p>Password:</p> <input type="password" name="password" /><br />
+        <p>Please Confirm:</p> <input type="password" name="confirm" /><br />
+        <input type="submit" value="Login" /><br />
+    </div>
+</form>

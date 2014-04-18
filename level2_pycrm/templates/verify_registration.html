@@ -1,0 +1,28 @@
+{% if attrs %}
+<style>
+    h2 { color: red;}
+</style>
+<h2>Please verify that the correct information was entered</h2>
+<!--<form method="GET" action="{{ url_for('verified') }}">-->
+    <table border="2" cellpadding="3" cellspacing="2">
+    {% for label, attr in attrs %}
+    <tr>
+        <td>{{ label }}</td>
+        <td>{{ attr }}</td>
+    </tr>
+    {% endfor %}
+    </table>
+    <input type="button" value="confirm" onclick="{{ url_for('verified') }}" />
+    <input type="button" value="go back" onclick="history.go(-1)" />
+    <!--</form>-->
+    <button onclick="history.go(-1)">Go Back</button>
+{% endif %}
+        
+
+
+
+
+
+
+
+
